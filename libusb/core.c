@@ -29,6 +29,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
+
 #include "libusb.h"
 #include "libusbi.h"
 
@@ -1540,6 +1544,12 @@ void usbi_log(struct libusb_context *ctx, enum usbi_log_level level,
 	FILE *stream = stdout;
 	const char *prefix;
 
+#if defined(__ANDROID__)
+        int prio;
+#else
+        const char *prefix;
+#endif
+
 #ifndef ENABLE_DEBUG_LOGGING
 	USBI_GET_CONTEXT(ctx);
 	if (!ctx->debug)
@@ -1550,6 +1560,29 @@ void usbi_log(struct libusb_context *ctx, enum usbi_log_level level,
 		return;
 #endif
 
+#if defined(__ANDROID__)
+       switch (level) {
+	case LOG_LEVEL_INFO:
+		prio = ANDROID_LOG_INFO;
+		break;
+	case LOG_LEVEL_WARNING:
+		prio = ANDROID_LOG_WARN;
+		break;
+	case LOG_LEVEL_ERROR:
+		prio = ANDROID_LOG_ERROR;
+		break;
+	case LOG_LEVEL_DEBUG:
+		prio = ANDROID_LOG_DEBUG;
+		break;
+	default:
+		prio = ANDROID_LOG_UNKNOWN;
+		break;
+	}
+
+       va_start (args, format);
+       __android_log_vprint(prio, "LibUsb", format, args);
+       va_end (args);
+#else
 	switch (level) {
 	case LOG_LEVEL_INFO:
 		prefix = "info";
@@ -1579,5 +1612,6 @@ void usbi_log(struct libusb_context *ctx, enum usbi_log_level level,
 	va_end (args);
 
 	fprintf(stream, "\n");
+#endif	
 }
 

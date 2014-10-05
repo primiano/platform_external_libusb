@@ -1,12 +1,11 @@
-/* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.ac by autoheader.  */
-/* saintlou: File is identical with PPC and Intel, 10/26/2010 */
+/* config.h. is modified to support bluedroid */
 
 /* Default visibility */
 #define API_EXPORTED __attribute__((visibility("default")))
 
 /* Debug message logging */
 /* #undef ENABLE_DEBUG_LOGGING */
+#define ENABLE_DEBUG_LOGGING 1
 
 /* Message logging */
 #define ENABLE_LOGGING 1
@@ -18,7 +17,9 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `rt' library (-lrt). */
-/* #undef HAVE_LIBRT */
+#ifdef _SHARED_LIBRARY_
+#define HAVE_LIBRT 1
+#endif
 
 /* Define to 1 if you have the <memory.h> header file. */
 #define HAVE_MEMORY_H 1
@@ -52,10 +53,10 @@
 /* #undef NO_MINUS_C_MINUS_O */
 
 /* Darwin backend */
-#define OS_DARWIN /**/
+/* #define OS_DARWIN */
 
 /* Linux backend */
-/* #undef OS_LINUX */
+#define OS_LINUX
 
 /* Name of package */
 #define PACKAGE "libusb"
@@ -82,10 +83,15 @@
 #define STDC_HEADERS 1
 
 /* Backend handles timeout */
+#ifndef _SHARED_LIBRARY_
 #define USBI_OS_HANDLES_TIMEOUT /**/
 
 /* timerfd headers available */
 /* #undef USBI_TIMERFD_AVAILABLE */
+#else
+#undef USBI_OS_HANDLES_TIMEOUT
+#undef USBI_TIMERFD_AVAILABLE
+#endif
 
 /* Version number of package */
 #define VERSION "1.0.8"
